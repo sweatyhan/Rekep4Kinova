@@ -5,8 +5,30 @@ from kortex_api.autogen.client_stubs.BaseClientRpc import BaseClient
 from kortex_api.autogen.client_stubs.BaseCyclicClientRpc import BaseCyclicClient
 from kortex_api.autogen.messages import Base_pb2, BaseCyclic_pb2
 from kortex_api.Exceptions.KServerException import KServerException
+import pybullet as p
+import pybullet_data
 
 TIMEOUT_DURATION = 100
+
+class LocalIKSolver:
+    def __init__(self, urdf_path="/home/kinova/Rekep4Real/kortex_description/arms/gen3/urdf/GEN3_URDF_V12.urdf"):
+        self.physics_client = p.connect(p.DIRECT)
+        p.setAdditionalSearchPath(pybullet_data.getDataPath())
+        self.robot_id = p.loadURDF(urdf_path)
+        self.num_joints = p.getNumJoints(self.robot_id)
+
+    def solve_ik(self, target_pos, target_ori):
+        joint_positions = p.calculateInverseKinematics(
+            self.robot_id,
+            endEffectorLinkIndex=self.num_joints - 1,
+            targetPosition=target_pos,
+            targetOrientation=target_ori
+        )
+        return joint_positions
+
+    def disconnect(self):
+        p.disconnect(self.physics_client)
+
 
 class KinovaRobot:
     def __init__(self, ip_address="192.168.1.10", username="admin", password="admin", port=10000, port_real_time=10001):
@@ -15,6 +37,7 @@ class KinovaRobot:
         self.password = password
         self.port = port
         self.port_real_time = port_real_time
+        self.ik_solver = LocalIKSolver()
 
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
         import Kinova_api.api_python.examples.utilities as utilities
@@ -62,6 +85,34 @@ class KinovaRobot:
                 print("Error_code:{} , Sub_error_code:{} ".format(ex.get_error_code(), ex.get_error_sub_code()))
                 print("Caught expected error: {}".format(ex))
                 return None
+            
+    def move_to_joint_positions(self, target_positions):
+        action = Base_pb2.Action()
+        action.name = "Move to target joint positions"
+        action.application_data = ""
+
+        for i, target_position in enumerate(target_positions):
+            joint_angle = action.reach_joint_angles.joint_angles.joint_angles.add()
+            joint_angle.joint_identifier = i
+            joint_angle.value = target_position
+
+        e = threading.Event()
+        with self.utilities.DeviceConnection.createTcpConnection(self.args) as router:
+            base = BaseClient(router)
+            notification_handle = base.OnNotificationActionTopic(
+                self.check_for_end_or_abort(e),
+                Base_pb2.NotificationOptions()
+            )
+
+            base.ExecuteAction(action)
+            finished = e.wait(TIMEOUT_DURATION)
+            base.Unsubscribe(notification_handle)
+
+            if finished:
+                print("Movement to target joint positions completed")
+            else:
+                print("Timeout on action notification wait")
+            return finished
 
     def move_to_tool_position(self, target_position):
         action = Base_pb2.Action()
@@ -94,6 +145,11 @@ class KinovaRobot:
                 print("Timeout on action notification wait")
             return finished
         
+
+    # def CptIK_P(self, Input_IkData):
+        
+
+
     def CptIK(self, Input_IkData):
         with self.utilities.DeviceConnection.createTcpConnection(self.args) as router:
             base = BaseClient(router)
