@@ -2,7 +2,7 @@ from dds_cloudapi_sdk import Config, Client, DetectionTask, TextPrompt, Detectio
 import os
 import cv2
 
-API_TOKEN = "6af95839327bbdd9ad310cafd8f097d6"
+API_TOKEN = ""
 MODEL = "GDino1_5_Pro"
 DETECTION_TARGETS = ["Mask", "BBox"]
 
