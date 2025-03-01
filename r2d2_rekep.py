@@ -418,7 +418,7 @@ if __name__ == "__main__":
     #     print("No directories found under vlm_query")
     #     sys.exit(1)
 
-    newest_rekep_dir = "//home//kinova//Rekep4Real//vlm_query//2025-02-27_20-55-41_help_me_take_that_bottle_of_water"
+    newest_rekep_dir = "//home//kinova//Rekep4Real//vlm_query//2025-03-01_16-51-47_help_me_take_that_bottle_of_water"
     transform_keypoints(newest_rekep_dir)
     main = MainR2D2(visualize=args.visualize)
     main.perform_task(instruction=args.instruction, rekep_program_dir=newest_rekep_dir)

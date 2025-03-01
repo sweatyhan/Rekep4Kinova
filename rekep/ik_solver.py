@@ -162,39 +162,55 @@ class KinovaIKSolver:
         if initial_joint_pos is None:
             initial_joint_pos = self.reset_joint_pos
         
-        # Create IKData object
-        input_IkData = Base_pb2.IKData()
-        input_IkData.cartesian_pose.x = target_pos[0]
-        input_IkData.cartesian_pose.y = target_pos[1]
-        input_IkData.cartesian_pose.z = target_pos[2]
-        input_IkData.cartesian_pose.theta_x = euler_angles[0]
-        input_IkData.cartesian_pose.theta_y = euler_angles[1]
-        input_IkData.cartesian_pose.theta_z = euler_angles[2]
+        # # Create IKData object
+        # input_IkData = Base_pb2.IKData()
+        # input_IkData.cartesian_pose.x = target_pos[0]
+        # input_IkData.cartesian_pose.y = target_pos[1]
+        # input_IkData.cartesian_pose.z = target_pos[2]
+        # input_IkData.cartesian_pose.theta_x = euler_angles[0]
+        # input_IkData.cartesian_pose.theta_y = euler_angles[1]
+        # input_IkData.cartesian_pose.theta_z = euler_angles[2]
 
-        # Fill the IKData Object with the guessed joint angles
-        for joint_angle in initial_joint_pos:
-            jAngle = input_IkData.guess.joint_angles.add()
-            jAngle.value = joint_angle
+        # # Fill the IKData Object with the guessed joint angles
+        # for joint_angle in initial_joint_pos:
+        #     jAngle = input_IkData.guess.joint_angles.add()
+        #     jAngle.value = joint_angle
+
+        input_IkData = []
+        for pos in target_pos:
+            input_IkData.append(pos)
+        for angle in euler_angles:
+            input_IkData.append(angle)
+
         
-        try:
-            print("Computing Inverse Kinematics using joint angles and pose...")
-            computed_joint_angles = self.kinova.CptIK(input_IkData)
-            success = True
-            for joint_angle in computed_joint_angles.joint_angles:
-                joint_angle.value = joint_angle.value/180*np.pi
-            error_pos = 0.01  # Placeholder for actual position error
-            error_rot = 0.01  # Placeholder for actual rotation error
-            num_descents = max_iterations // 2  # Placeholder for actual number of descents
-        except KServerException as ex:
-            print("Unable to compute inverse kinematics")
-            print("Error_code:{} , Sub_error_code:{} ".format(ex.get_error_code(), ex.get_error_sub_code()))
-            print("Caught expected error: {}".format(ex))
-            success = False
-            computed_joint_angles = self.reset_joint_pos
-            computed_joint_angles = ComputedJointAngles(joint_angles=computed_joint_angles)
-            error_pos = 1.0
-            error_rot = 1.0
-            num_descents = max_iterations
+        # try:
+        #     print("Computing Inverse Kinematics using joint angles and pose...")
+        #     computed_joint_angles = self.kinova.CptIK(input_IkData)
+        #     success = True
+        #     for joint_angle in computed_joint_angles.joint_angles:
+        #         joint_angle.value = joint_angle.value/180*np.pi
+        #     error_pos = 0.01  # Placeholder for actual position error
+        #     error_rot = 0.01  # Placeholder for actual rotation error
+        #     num_descents = max_iterations // 2  # Placeholder for actual number of descents
+        # except KServerException as ex:
+        #     print("Unable to compute inverse kinematics")
+        #     print("Error_code:{} , Sub_error_code:{} ".format(ex.get_error_code(), ex.get_error_sub_code()))
+        #     print("Caught expected error: {}".format(ex))
+        #     success = False
+        #     computed_joint_angles = self.reset_joint_pos
+        #     computed_joint_angles = ComputedJointAngles(joint_angles=computed_joint_angles)
+        #     error_pos = 1.0
+        #     error_rot = 1.0
+        #     num_descents = max_iterations
+
+        print("Computing Inverse Kinematics using joint angles and pose...")
+        computed_joint_angles = self.kinova.CptIK(input_IkData)
+        success = True
+        error_pos = 0.01  # Placeholder for actual position error
+        error_rot = 0.01  # Placeholder for actual rotation error
+        num_descents = max_iterations // 2
+
+        computed_joint_angles = ComputedJointAngles(joint_angles=computed_joint_angles)
         
         joint_positions = []
         for joint_angle in computed_joint_angles.joint_angles:

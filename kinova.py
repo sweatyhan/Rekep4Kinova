@@ -7,27 +7,21 @@ from kortex_api.autogen.messages import Base_pb2, BaseCyclic_pb2
 from kortex_api.Exceptions.KServerException import KServerException
 import pybullet as p
 import pybullet_data
+from kinova_iksolver import LocalIKSolver as Solver
+import numpy as np
 
 TIMEOUT_DURATION = 100
 
 class LocalIKSolver:
-    def __init__(self, urdf_path="/home/kinova/Rekep4Real/kortex_description/arms/gen3/urdf/GEN3_URDF_V12.urdf"):
-        self.physics_client = p.connect(p.DIRECT)
-        p.setAdditionalSearchPath(pybullet_data.getDataPath())
-        self.robot_id = p.loadURDF(urdf_path)
-        self.num_joints = p.getNumJoints(self.robot_id)
+    def __init__(self):
+        self.ik_solver = Solver()
 
     def solve_ik(self, target_pos, target_ori):
-        joint_positions = p.calculateInverseKinematics(
-            self.robot_id,
-            endEffectorLinkIndex=self.num_joints - 1,
-            targetPosition=target_pos,
-            targetOrientation=target_ori
-        )
+        joint_positions = self.ik_solver.solve_ik(target_pos, target_ori)
+        joint_positions = np.array(joint_positions)
+        # joint_positions = joint_positions * 180.0 / np.pi
         return joint_positions
-
-    def disconnect(self):
-        p.disconnect(self.physics_client)
+    
 
 
 class KinovaRobot:
@@ -38,6 +32,7 @@ class KinovaRobot:
         self.port = port
         self.port_real_time = port_real_time
         self.ik_solver = LocalIKSolver()
+        self.local_ik_solver = Solver()
 
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
         import Kinova_api.api_python.examples.utilities as utilities
@@ -151,11 +146,17 @@ class KinovaRobot:
 
 
     def CptIK(self, Input_IkData):
-        with self.utilities.DeviceConnection.createTcpConnection(self.args) as router:
-            base = BaseClient(router)
-            computed_joint_angles = base.ComputeInverseKinematics(Input_IkData)
-            # print(computed_joint_angles)
-            return computed_joint_angles
+        # with self.utilities.DeviceConnection.createTcpConnection(self.args) as router:
+        #     base = BaseClient(router)
+        #     computed_joint_angles = base.ComputeInverseKinematics(Input_IkData)
+        #     # print(computed_joint_angles)
+        #     return computed_joint_angles
+        target_pos = np.array(Input_IkData[:3])
+        target_ori = np.array(Input_IkData[3:])
+        target_ori = p.getQuaternionFromEuler(target_ori)
+        joint_positions = self.ik_solver.solve_ik(target_pos, target_ori)
+        return joint_positions
+
 
     # def close(self):
     #     self.router.Close()
