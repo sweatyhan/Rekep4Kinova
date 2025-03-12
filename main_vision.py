@@ -120,7 +120,7 @@ class MainVision:
         gdino = GroundingDINO()
         rgb_path = 'data/temp_rgb.png' # save rgb to png at data temperarily for upload
         bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-        cv2.imwrite(rgb_path, bgr)
+        cv2.imwrite(rgb_path, rgb)
         if isinstance(obj_list, str):
             obj_list = obj_list.split(',')  # 如果输入是逗号分隔的字符串
     
