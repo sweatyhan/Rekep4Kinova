@@ -64,7 +64,12 @@ To run the project, follow these steps in order:
 
 ## State
 
-The project is not yet finished; there are still some issues to be resolved in the final step.
+The project is nearly complete. The IK solver is implemented using the PyBullet simulator, and the model file used is `gen3_robotiq_2f_85.xacro`, located in the `kortex_description/robots` directory.
+
+## Addition
+
+If the robot you are using is not Kinova Gen3 and robotiq-2df-85, `robotics-toolbox-python` is suggested to use. 
+Besides PyBullet, I also tried using `robotics-toolbox-python`. This package has a rich library of robotic arm models, and its IK solver is a bit more convenient. However, I encountered errors when trying to solve the IK problem for the Kinova Gen3, while it worked well with other robot models. Therefore, I reverted to using PyBullet.
 
 ## Contributing
 
