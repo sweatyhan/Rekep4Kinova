@@ -29,11 +29,21 @@ To get started with the ReKep project, follow these steps:
     cd ReKep4Kinova
     ```
 
-3. Install the required dependencies:
+3. Install Kortex-api for Kinova Gen3:
+    Follow the instruction in https://github.com/Kinovarobotics/Kinova-kortex2_Gen3_G3L/blob/master/readme.md
+    Choose kortex_api-2.6.0.post3-py3-none-any.whl for Kinova Gen3
+
+4. Install the required dependencies:
     ```bash
-    pip install -r requirements.txt # just for reference
+    pip install -r requirements.txt
     ```
-    Note: The environment is actually based on the two projects mentioned at the beginning.
+    Note: 
+    If you are told that torch==2.5.1+cu121 is not found, you can try this command below and do step 4 again.
+    ```bash
+    pip install torch==2.5.1+cu121 --extra-index-url https://download.pytorch.org/whl/cu121  # -i https://pypi.tuna.tsinghua.edu.cn/simple
+    ```
+    After the last step, you might encounter an error: *kortex-api 2.6.0.post3 requires protobuf==3.5.1, but you have protobuf 3.20.1 which is incompatible.* This error can be safely ignored as kortex-api 2.6.0 works well in practice despite the version mismatch.
+    
 
 ## Usage
 
