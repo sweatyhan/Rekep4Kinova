@@ -4,12 +4,15 @@ The ReKep project aims to transition ReKep from Isaac Sim to using the Kinova Ge
 
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Running the Project](#running-the-project)
-- [Contributing](#contributing)
-- [License](#license)
+- [ReKep Project](#rekep-project)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [Running the Project](#running-the-project)
+  - [State](#state)
+  - [Addition](#addition)
+  - [Contributing](#contributing)
 
 ## Introduction
 
@@ -78,8 +81,11 @@ The project is nearly complete. The IK solver is implemented using the PyBullet 
 
 ## Addition
 
-If the robot you are using is not Kinova Gen3 and robotiq-2df-85, `robotics-toolbox-python` is suggested to use. 
+The missing folder `vlm_query` can be found in the original project [huangwl18/ReKep](https://github.com/huangwl18/ReKep).
+Here is a folder `Notes_for_code` that contains tutorial to help you quickly understand and modify the code for reproducing the results when using robots other than Kinova Gen3 and Gripper-2F-85.
+If the robot you are using is not Kinova Gen3 and robotiq-2f-85, `robotics-toolbox-python` is suggested to use. 
 Besides PyBullet, I also tried using `robotics-toolbox-python`. This package has a rich library of robotic arm models, and its IK solver is a bit more convenient. However, I encountered errors when trying to solve the IK problem for the Kinova Gen3, while it worked well with other robot models. Therefore, I reverted to using PyBullet.
+
 
 ## Contributing
 
